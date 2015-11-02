@@ -61,11 +61,11 @@ export default plugin('parser', function parser({ fetch } = {}) {
       }
     });
 
-    if (promises.length) {
-      return Promise.all(promises)
-        .then(() => proceed(css, translations));
+    if (promises.length === 0) {
+      return void proceed(css, translations);
     }
 
-    proceed(css, translations);
+    return Promise.all(promises)
+      .then(() => proceed(css, translations));
   };
 });
