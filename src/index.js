@@ -15,9 +15,10 @@ function isPromise(promise) {
 /**
  * @param  {object} css
  * @param  {object} translations
- * @param  {object} exportTokens
  */
-function proceed(css, translations, exportTokens) {
+function proceed(css, translations) {
+  const exportTokens = {};
+
   replaceSymbols(css, translations);
 
   css.walkRules(exportRegexp, rule => {
@@ -60,13 +61,11 @@ export default plugin('parser', function parser({ fetch } = {}) {
       }
     });
 
-    const exportTokens = {};
-
     if (promises.length) {
       return Promise.all(promises)
-        .then(() => proceed(css, translations, exportTokens));
+        .then(() => proceed(css, translations));
     }
 
-    proceed(css, translations, exportTokens);
+    proceed(css, translations);
   };
 });
