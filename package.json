@@ -1,0 +1,30 @@
+{
+  "name": "postcss-modules-parser",
+  "version": "1.0.0",
+  "description": "A CSS Modules parser to extract tokens from the css file",
+  "main": "src/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/sullenor/postcss-modules-parser.git"
+  },
+  "keywords": [
+    "css-modules",
+    "postcss",
+    "css",
+    "postcss-plugin"
+  ],
+  "author": "Alexey Litvinov",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/sullenor/postcss-modules-parser/issues"
+  },
+  "homepage": "https://github.com/sullenor/postcss-modules-parser#readme",
+  "dependencies": {
+    "icss-replace-symbols": "^1.0.2",
+    "lodash.foreach": "^3.0.3",
+    "postcss": "^5.0.10"
+  }
+}
