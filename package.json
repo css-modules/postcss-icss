@@ -13,7 +13,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/sullenor/postcss-modules-parser.git"
+    "url": "git+https://github.com/css-modules/postcss-modules-parser.git"
   },
   "keywords": [
     "css-modules",
@@ -24,9 +24,9 @@
   "author": "Alexey Litvinov",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/sullenor/postcss-modules-parser/issues"
+    "url": "https://github.com/css-modules/postcss-modules-parser/issues"
   },
-  "homepage": "https://github.com/sullenor/postcss-modules-parser#readme",
+  "homepage": "https://github.com/css-modules/postcss-modules-parser#readme",
   "dependencies": {
     "icss-replace-symbols": "^1.0.2",
     "lodash.foreach": "^3.0.3",

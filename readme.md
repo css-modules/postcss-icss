@@ -24,5 +24,5 @@ new Parser({fetch: fetch});
 ```
 
 See the examples:
-- asynchronous loader: test/helper/async-loader.js
-- synchronous loader: test/helper/sync-loader.js
+- asynchronous loader: [test/helper/async-loader.js](https://github.com/css-modules/postcss-modules-parser/blob/master/test/helper/async-loader.js)
+- synchronous loader: [test/helper/sync-loader.js](https://github.com/css-modules/postcss-modules-parser/blob/master/test/helper/sync-loader.js)
