@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "compile": "babel src --out-dir lib",
-    "prepublish": "in-publish && npm run -s build || in-install",
+    "prepublish": "in-publish && npm run -s compile || in-install",
     "test": "mocha --compilers js:babel-core/register"
   },
   "engines": {
