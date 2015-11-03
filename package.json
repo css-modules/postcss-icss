@@ -2,7 +2,7 @@
   "name": "postcss-modules-parser",
   "version": "1.0.0",
   "description": "A CSS Modules parser to extract tokens from the css file",
-  "main": "lib/index.js",
+  "main": "index.js",
   "scripts": {
     "compile": "babel src --out-dir lib",
     "test": "mocha --compilers js:babel-core/register"
