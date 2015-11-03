@@ -1,0 +1,9 @@
+:import("./external.css")
+{
+  local: localKey;
+}
+
+:export
+{
+  myKey: local;
+}

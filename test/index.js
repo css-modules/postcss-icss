@@ -9,23 +9,47 @@ let expected;
 let filename;
 
 describe('postcss-modules-parser', _ => {
-  beforeEach(() => {
-    fixture = 'test/fixture/simple';
-    filename = resolve(fixture, 'source.css');
-    expected = JSON.parse(readFileSync(resolve(fixture, 'expected.json'), 'utf8'));
+  describe('single', _ => {
+    beforeEach(() => {
+      fixture = 'test/fixture/single';
+      filename = resolve(fixture, 'source.css');
+      expected = JSON.parse(readFileSync(resolve(fixture, 'expected.json'), 'utf8'));
+    });
+
+    it('asynchronous', done => {
+      const result = asyncLoader(filename, filename)
+        .then(result => {
+          equal(JSON.stringify(result), JSON.stringify(expected));
+          done();
+        })
+        .catch(done);
+    });
+
+    it('synchronous', () => {
+      const result = syncLoader(filename, filename);
+      equal(JSON.stringify(result), JSON.stringify(expected));
+    });
   });
 
-  it('asynchronous', done => {
-    const result = asyncLoader(filename, filename)
-      .then(result => {
-        equal(JSON.stringify(result), JSON.stringify(expected));
-        done();
-      })
-      .catch(done);
-  });
+  describe('multiple', _ => {
+    beforeEach(() => {
+      fixture = 'test/fixture/multiple';
+      filename = resolve(fixture, 'source.css');
+      expected = JSON.parse(readFileSync(resolve(fixture, 'expected.json'), 'utf8'));
+    });
 
-  it('synchronous', () => {
-    const result = syncLoader(filename, filename);
-    equal(JSON.stringify(result), JSON.stringify(expected));
+    it('asynchronous', done => {
+      const result = asyncLoader(filename, filename)
+        .then(result => {
+          equal(JSON.stringify(result), JSON.stringify(expected));
+          done();
+        })
+        .catch(done);
+    });
+
+    it('synchronous', () => {
+      const result = syncLoader(filename, filename);
+      equal(JSON.stringify(result), JSON.stringify(expected));
+    });
   });
 });
