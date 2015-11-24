@@ -45,8 +45,11 @@ export default plugin('parser', function parser({ fetch } = {}) {
     const translations = {};
     const promises = [];
 
+    let iteration = 0;
+
     css.walkRules(importRegexp, rule => {
-      const result = fetch(RegExp.$1, file);
+      const dependency = RegExp.$1.replace(/^["']|["']$/g, '');
+      const result = fetch(dependency, file, iteration++);
 
       if (isPromise(result)) {
         result.then(exports => {
