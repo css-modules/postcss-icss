@@ -1,5 +1,5 @@
-postcss-modules-parser
-======================
+postcss-icss
+============
 
 A CSS Modules parser to extract tokens from the css file. Provides opportunity to process multiple files. Supports both synchronous and asynchronous file loaders.
 
