@@ -1,5 +1,0 @@
-.git*
-.npmignore
-.travis.yml
-src/
-test/
