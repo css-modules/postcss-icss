@@ -8,7 +8,7 @@ const compile = input => postcss([plugin]).process(strip(input));
 const runMsgs = input => compile(input).then(result => result.messages);
 const runCSS = input => compile(input).then(result => result.css);
 
-test("exports tokens", () => {
+test("export tokens", () => {
   return expect(runMsgs(":export { a: b; _c: _d} .foo {}")).resolves.toEqual([
     {
       type: "icss",
@@ -21,7 +21,7 @@ test("exports tokens", () => {
   ]);
 });
 
-test("imports and exports tokens", () => {
+test("import and export tokens", () => {
   return expect(
     runMsgs(`
       :import('./test/fixtures/exports.css') {
@@ -45,7 +45,7 @@ test("imports and exports tokens", () => {
   ]);
 });
 
-test("imports and replaces identifiers", () => {
+test("import and replace identifiers", () => {
   return expect(
     runCSS(`
       :import('./test/fixtures/exports.css') {

@@ -24,7 +24,7 @@ module.exports = postcss.plugin("postcss-icss", (options = {}) => (
   const { icssImports, icssExports } = extractICSS(css);
 
   const promises = Object.keys(icssImports).map(key => {
-    const importee = key.slice(1, -1);
+    const importee = key.replace(/^['"]|['"]$/g, "");
     return fetch(importee, importerDir, result.processor).then(exportTokens => {
       const importTokens = icssImports[key];
       return Object.keys(importTokens).reduce((acc, token) => {
