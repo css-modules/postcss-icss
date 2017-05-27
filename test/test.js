@@ -61,3 +61,18 @@ test("import and replace identifiers", () => {
     `)
   );
 });
+
+test("import non-css files as resource", () => {
+  return expect(
+    runCSS(`
+      :import('path/to/resource.png') {
+        local: default
+      }
+      .foo { background: url(local) }
+    `)
+  ).resolves.toEqual(
+    strip(`
+      .foo { background: url('path/to/resource.png') }
+    `)
+  );
+});

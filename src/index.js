@@ -5,6 +5,12 @@ import postcss from "postcss";
 import { replaceSymbols, replaceValueSymbols, extractICSS } from "icss-utils";
 
 const defaultFetch = (importee, importerDir, processor) => {
+  const ext = path.extname(importee);
+  if (ext !== ".css") {
+    return Promise.resolve({
+      default: `'${importee}'`
+    });
+  }
   const from = path.resolve(importerDir, importee);
   const content = fs.readFileSync(from, "utf-8");
   return processor
