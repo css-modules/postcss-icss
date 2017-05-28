@@ -4,17 +4,27 @@ import path from "path";
 import postcss from "postcss";
 import { replaceSymbols, replaceValueSymbols, extractICSS } from "icss-utils";
 
+const readFile = filepath =>
+  new Promise((resolve, reject) => {
+    fs.readFile(filepath, "utf-8", (err, content) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(content);
+      }
+    });
+  });
+
 const defaultFetch = (importee, importerDir, processor) => {
   const ext = path.extname(importee);
   if (ext !== ".css") {
     return Promise.resolve({
-      default: `'${importee}'`
+      default: importee
     });
   }
   const from = path.resolve(importerDir, importee);
-  const content = fs.readFileSync(from, "utf-8");
-  return processor
-    .process(content, { from })
+  return readFile(from)
+    .then(content => processor.process(content, { from }))
     .then(result => result.messages.find(d => d.type === "icss").exportTokens);
 };
 

@@ -72,7 +72,7 @@ test("import non-css files as resource", () => {
     `)
   ).resolves.toEqual(
     strip(`
-      .foo { background: url('path/to/resource.png') }
+      .foo { background: url(path/to/resource.png) }
     `)
   );
 });
