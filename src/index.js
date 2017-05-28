@@ -1,75 +1,67 @@
 /* eslint-env node */
+import fs from "fs";
+import path from "path";
 import postcss from "postcss";
-import forEach from "lodash.foreach";
-import replaceSymbols from "icss-replace-symbols";
-const importRegexp = /^:import\((.+)\)$/;
-const exportRegexp = /^:export$/;
+import { replaceSymbols, replaceValueSymbols, extractICSS } from "icss-utils";
 
-/**
- * @param  {object}  promise
- * @return {boolean}
- */
-function isPromise(promise) {
-  return typeof promise === "object" && typeof promise.then === "function";
-}
+const readFile = filepath =>
+  new Promise((resolve, reject) => {
+    fs.readFile(filepath, "utf-8", (err, content) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(content);
+      }
+    });
+  });
 
-/**
- * @param  {object} css
- * @param  {object} translations
- */
-function proceed(css, translations) {
-  const exportTokens = {};
+const defaultFetch = (importee, importerDir, processor) => {
+  const ext = path.extname(importee);
+  if (ext !== ".css") {
+    return Promise.resolve({
+      default: importee
+    });
+  }
+  const from = path.resolve(importerDir, importee);
+  return readFile(from)
+    .then(content => processor.process(content, { from }))
+    .then(result => result.messages.find(d => d.type === "icss").exportTokens);
+};
 
-  replaceSymbols(css, translations);
+module.exports = postcss.plugin("postcss-icss", (options = {}) => (
+  css,
+  result
+) => {
+  const importerDir = css.source.input.file
+    ? path.dirname(css.source.input.file)
+    : process.cwd();
+  const fetch = options.fetch || defaultFetch;
 
-  css.walkRules(exportRegexp, rule => {
-    rule.walkDecls(decl => {
-      forEach(
-        translations,
-        (value, key) => (decl.value = decl.value.replace(key, value))
-      );
-      exportTokens[decl.prop] = decl.value;
+  const { icssImports, icssExports } = extractICSS(css);
+
+  const promises = Object.keys(icssImports).map(key => {
+    const importee = key.replace(/^['"]|['"]$/g, "");
+    return fetch(importee, importerDir, result.processor).then(exportTokens => {
+      const importTokens = icssImports[key];
+      return Object.keys(importTokens).reduce((acc, token) => {
+        acc[token] = exportTokens[importTokens[token]];
+        return acc;
+      }, {});
+    });
+  });
+
+  return Promise.all(promises).then(results => {
+    const replacements = Object.assign({}, ...results);
+    replaceSymbols(css, replacements);
+
+    Object.keys(icssExports).forEach(key => {
+      icssExports[key] = replaceValueSymbols(icssExports[key], replacements);
     });
 
-    rule.remove();
+    result.messages.push({
+      type: "icss",
+      plugin: "postcss-icss",
+      exportTokens: icssExports
+    });
   });
-
-  css.tokens = exportTokens;
-}
-
-/**
- * @param  {function} options.fetch
- * @return {function}
- */
-module.exports = postcss.plugin("postcss-icss", ({ fetch } = {}) => css => {
-  // https://github.com/postcss/postcss/blob/master/docs/api.md#inputfile
-  const file = css.source.input.file;
-
-  const translations = {};
-  const promises = [];
-
-  let iteration = 0;
-
-  css.walkRules(importRegexp, rule => {
-    const dependency = RegExp.$1.replace(/^["']|["']$/g, "");
-    const result = fetch(dependency, file, iteration++);
-
-    if (isPromise(result)) {
-      result.then(exports => {
-        rule.walkDecls(decl => (translations[decl.prop] = exports[decl.value]));
-        rule.remove();
-      });
-
-      promises.push(result);
-    } else {
-      rule.walkDecls(decl => (translations[decl.prop] = result[decl.value]));
-      rule.remove();
-    }
-  });
-
-  if (promises.length === 0) {
-    return void proceed(css, translations);
-  }
-
-  return Promise.all(promises).then(() => proceed(css, translations));
 });
