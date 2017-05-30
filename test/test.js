@@ -76,3 +76,71 @@ test("import non-css files as resource", () => {
     `)
   );
 });
+
+test("use 'import' keyword to inline default content", () => {
+  return expect(
+    runCSS(`
+      :import('./test/fixtures/inline.css') {
+        import: default
+      }
+
+      .foo {
+        display: block;
+      }
+    `)
+  ).resolves.toEqual(
+    strip(`
+      .a {}
+      @media screen and (min-width: 560px) {
+        .b {}
+      }
+      .c {}
+      .foo {
+        display: block;
+      }
+    `)
+  );
+});
+
+test("use 'import' keyword with media query", () => {
+  return expect(
+    runCSS(`
+      :import('./test/fixtures/inline.css') {
+        import: default tv, print
+      }
+
+      .foo {
+        display: block;
+      }
+    `)
+  ).resolves.toEqual(
+    strip(`
+      @media tv, print {
+        .a {}
+        @media screen and (min-width: 560px) {
+          .b {}
+        }
+        .c {}
+      }
+      .foo {
+        display: block;
+      }
+    `)
+  );
+});
+
+test("skips invalid 'import'", () => {
+  return expect(
+    runCSS(`
+      :import('./test/fixtures/inline.css') {
+        import: -
+      }
+
+      .foo {}
+    `)
+  ).resolves.toEqual(
+    strip(`
+      .foo {}
+    `)
+  );
+});

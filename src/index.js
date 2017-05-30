@@ -15,6 +15,9 @@ const readFile = filepath =>
     });
   });
 
+const getTokens = result =>
+  result.messages.find(d => d.type === "icss").exportTokens;
+
 const defaultFetch = (importee, importerDir, processor) => {
   const ext = path.extname(importee);
   if (ext !== ".css") {
@@ -25,7 +28,21 @@ const defaultFetch = (importee, importerDir, processor) => {
   const from = path.resolve(importerDir, importee);
   return readFile(from)
     .then(content => processor.process(content, { from }))
-    .then(result => result.messages.find(d => d.type === "icss").exportTokens);
+    .then(result =>
+      Object.assign({}, getTokens(result), { default: result.css })
+    );
+};
+
+const importParamsPattern = /^(\w+)(.+)?/;
+
+const importToken = (params, tokens) => {
+  const matches = importParamsPattern.exec(params);
+  if (matches) {
+    const content = tokens[matches[1]];
+    const media = matches[2];
+    return media ? `@media ${media.trim()} {\n${content}\n}` : content;
+  }
+  return "";
 };
 
 module.exports = postcss.plugin("postcss-icss", (options = {}) => (
@@ -44,15 +61,24 @@ module.exports = postcss.plugin("postcss-icss", (options = {}) => (
     return fetch(importee, importerDir, result.processor).then(exportTokens => {
       const importTokens = icssImports[key];
       return Object.keys(importTokens).reduce((acc, token) => {
-        acc[token] = exportTokens[importTokens[token]];
+        if (token === "import") {
+          acc[token] = importToken(importTokens[token], exportTokens);
+        } else {
+          acc[token] = exportTokens[importTokens[token]];
+        }
         return acc;
       }, {});
     });
   });
 
   return Promise.all(promises).then(results => {
+    const imports = results
+      .map(result => result.import)
+      .filter(content => Boolean(content))
+      .join("\n");
     const replacements = Object.assign({}, ...results);
     replaceSymbols(css, replacements);
+    css.prepend(imports);
 
     Object.keys(icssExports).forEach(key => {
       icssExports[key] = replaceValueSymbols(icssExports[key], replacements);
